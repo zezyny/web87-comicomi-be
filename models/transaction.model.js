@@ -5,7 +5,7 @@ const TransactionSchema = new mongoose.Schema({
     amount: Number,
     date: Date,
     transactionType: String,         //deposit, withdraw, unlock
-    token: String
+    transactionToken: String
 })
 
 const Transaction = mongoose.model('transactions', TransactionSchema)
