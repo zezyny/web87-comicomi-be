@@ -3,14 +3,13 @@ import mongoose from "mongoose";
 const StorySchema = new mongoose.Schema({
     title: String,
     author: String,
-    creatorId: mongoose.Types.ObjectId,
-    type: String,
-    genre: [String],
-    status: String,
+    creatorId: { type: mongoose.Types.ObjectId, ref: 'users' },
+    type: String,           //comic, novel
+    genre: [String],        //comedy, drama, fantasy, horror,...
+    status: String,         //ongoing, completed
     description: String,
     release: Date,
-    lastUpdate: Date,
-    like: [mongoose.Types.ObjectId]
+    lastUpdate: Date
 })
 
 const Story = mongoose.model('stories', StorySchema)

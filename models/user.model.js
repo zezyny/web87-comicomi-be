@@ -6,13 +6,8 @@ const UserSchema = new mongoose.Schema({
     password: String,
     avatar: String,
     salt: String,
-    role: String,
-    wallet: Number,
-    favorites: [String],
-    reading: [{
-        storyId: mongoose.Types.ObjectId,
-        date: Date
-    }]
+    role: String,           //member, creator, admin
+    wallet: Number
 })
 
 const User = mongoose.model('users', UserSchema)

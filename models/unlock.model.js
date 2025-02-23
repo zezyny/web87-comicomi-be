@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const UnlockSchema = new mongoose.Schema({
-    userId: mongoose.Types.ObjectId,
-    chapterId: mongoose.Types.ObjectId,
-    date: Date
+    userId: { type: mongoose.Types.ObjectId, ref: 'users' },
+    chapterId: { type: mongoose.Types.ObjectId, ref: 'chapters' },
+    transactionId: { type: mongoose.Types.ObjectId, ref: 'transactions' }
 })
 
 const Unlock = mongoose.model('unlocks', UnlockSchema)
