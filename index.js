@@ -13,6 +13,8 @@ import authRoutes from './routes/authRoutes.js';
 import errorHandler from './middlewares/errorHandler.js';
 import securityHeaders from './middlewares/securityHeaders.js';
 
+import storyRoutes from './routes/storyRoutes.js'
+
 dotenv.config()
 
 const app = express()
@@ -30,6 +32,9 @@ app.use(securityHeaders);
 //auth routes
 
 app.use('/auth', authRoutes);
+
+//Story APIs
+app.use('/api/v2/stories', storyRoutes);
 
 //user
 app.get('/api/v1/user', getUsers)
