@@ -26,3 +26,22 @@ export const authentication = (req, res, next) => {
         })
     }
 }
+
+
+export const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const accessTokenSecret = process.env.JWT_ACCESS_SECRET
+    // console.log("Authorization Header:", authHeader);
+    if (token == null) {
+        return res.status(401).json({ message: 'No token provided' }); // No token
+    }
+
+    jwt.verify(token, accessTokenSecret, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' }); // Token is not valid (expired, tampered)
+        }
+        req.user = decoded; 
+        next(); 
+    });
+};
