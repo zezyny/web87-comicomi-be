@@ -121,25 +121,37 @@ export const deleteStory = async (req, res, next) => {
         next(error);
     }
 };
-
-// --- Get Stories by Creator with limit ---
+//-- Get all stories, implemented search with regex :D --
 export const getStoriesByCreator = async (req, res, next) => {
     try {
         const creatorId = req.params.creatorId;
-        const fromIndex = parseInt(req.query.from) || 0; // Default to 0 if 'from' is not provided or invalid
-        const limit = 50; // Limit per page
+        const fromIndex = parseInt(req.query.from) || 0;
+        const limit = 50;
+        const search = req.query.search; 
 
         if (!mongoose.Types.ObjectId.isValid(creatorId)) {
             return res.status(400).json({ message: 'Invalid Creator ID format' });
         }
 
-        const stories = await Story.find({ creatorId })
+        let query = { creatorId };
+
+        if (search) { 
+            query = {
+                creatorId, 
+                $or: [     
+                    { title: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const stories = await Story.find(query) 
             .skip(fromIndex)
             .limit(limit);
 
-        const totalStoriesCount = await Story.countDocuments({ creatorId });
+        const totalStoriesCount = await Story.countDocuments(query); 
         const nextIndex = fromIndex + limit;
-        const nextFlag = nextIndex < totalStoriesCount ? nextIndex : null; // Null if no more stories
+        const nextFlag = nextIndex < totalStoriesCount ? nextIndex : null;
 
         res.status(200).json({
             stories,
@@ -152,23 +164,35 @@ export const getStoriesByCreator = async (req, res, next) => {
 };
 
 
-// --- Get All Stories with limit and Sorting ---
+// --- Get All Stories with Pagination and Sorting ---
 export const getAllStories = async (req, res, next) => {
     try {
-        const fromIndex = parseInt(req.query.from) || 0; // Default to 0
+        const fromIndex = parseInt(req.query.from) || 0;
         const limit = 50;
-        const sortBy = req.query.sortBy || 'release'; // Default sort by release date
-        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1; // Default desc (newest first)
+        const sortBy = req.query.sortBy || 'release';
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+        const search = req.query.search; 
 
         const sortOptions = {};
         sortOptions[sortBy] = sortOrder;
 
-        const stories = await Story.find({})
+        let query = {}; 
+
+        if (search) { 
+            query = {
+                $or: [ 
+                    { title: { $regex: search, $options: 'i' } }, 
+                    { description: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const stories = await Story.find(query) 
             .sort(sortOptions)
             .skip(fromIndex)
             .limit(limit);
 
-        const totalStoriesCount = await Story.countDocuments({});
+        const totalStoriesCount = await Story.countDocuments(query); 
         const nextIndex = fromIndex + limit;
         const nextFlag = nextIndex < totalStoriesCount ? nextIndex : null;
 
