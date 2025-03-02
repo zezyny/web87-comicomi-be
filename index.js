@@ -5,7 +5,7 @@ import cors from 'cors';
 import db from './database/db.js'
 import { simpleResponse } from './middlewares/simpleResponse.middleware.js';
 import { authentication } from './middlewares/auth.middleware.js';
-import { getUser, getUsers } from './controllers/user.controller.js';
+import { getAllUsers, getUser, getUsers } from './controllers/user.controller.js';
 import { getStories, getStory } from './controllers/story.controller.js';
 
 import helmet from 'helmet';
@@ -25,14 +25,14 @@ app.use(simpleResponse)
 
 // Middlewares
 app.use(helmet());
-app.use(securityHeaders); 
+app.use(securityHeaders);
 
 //auth routes
 
 app.use('/auth', authRoutes);
 
 //user
-app.get('/api/v1/user', getUsers)
+app.get('/api/v1/user', getAllUsers)
 app.get('/api/v1/user/:id/detail', getUser)
 
 //story

@@ -20,6 +20,13 @@ export const getUsers = async (req, res) => {
     })
 }
 
+export const getAllUsers = async (req, res) => {
+    const result = await userRepository.getAllUsers()
+    console.log(UserListView(result));
+    return res.ok(UserListView(result))
+
+}
+
 export const getUser = async (req, res) => {
     const { id } = req.params
 
