@@ -121,3 +121,63 @@ export const deleteStory = async (req, res, next) => {
         next(error);
     }
 };
+
+// --- Get Stories by Creator with limit ---
+export const getStoriesByCreator = async (req, res, next) => {
+    try {
+        const creatorId = req.params.creatorId;
+        const fromIndex = parseInt(req.query.from) || 0; // Default to 0 if 'from' is not provided or invalid
+        const limit = 50; // Limit per page
+
+        if (!mongoose.Types.ObjectId.isValid(creatorId)) {
+            return res.status(400).json({ message: 'Invalid Creator ID format' });
+        }
+
+        const stories = await Story.find({ creatorId })
+            .skip(fromIndex)
+            .limit(limit);
+
+        const totalStoriesCount = await Story.countDocuments({ creatorId });
+        const nextIndex = fromIndex + limit;
+        const nextFlag = nextIndex < totalStoriesCount ? nextIndex : null; // Null if no more stories
+
+        res.status(200).json({
+            stories,
+            next: nextFlag
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// --- Get All Stories with limit and Sorting ---
+export const getAllStories = async (req, res, next) => {
+    try {
+        const fromIndex = parseInt(req.query.from) || 0; // Default to 0
+        const limit = 50;
+        const sortBy = req.query.sortBy || 'release'; // Default sort by release date
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1; // Default desc (newest first)
+
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder;
+
+        const stories = await Story.find({})
+            .sort(sortOptions)
+            .skip(fromIndex)
+            .limit(limit);
+
+        const totalStoriesCount = await Story.countDocuments({});
+        const nextIndex = fromIndex + limit;
+        const nextFlag = nextIndex < totalStoriesCount ? nextIndex : null;
+
+        res.status(200).json({
+            stories,
+            next: nextFlag
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
