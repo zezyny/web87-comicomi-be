@@ -38,6 +38,7 @@ export const getStory = async (req, res) => {
 // --- Create Story ---
 export const createStory = async (req, res, next) => {
     try {
+        //Chinh lai validate =)))))
         const { title, type, genre, status, description } = req.body; 
         const creatorId = req.user.userId; 
 
