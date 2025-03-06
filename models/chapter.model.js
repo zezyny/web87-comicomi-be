@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const ChapterSchema = new mongoose.Schema({
+    chapterId: mongoose.Types.ObjectId, 
     chapterTitle: String,
     storyId: mongoose.Types.ObjectId,
     content: [Schema.Types.Mixed],
