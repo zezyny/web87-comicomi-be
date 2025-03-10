@@ -1,32 +1,29 @@
 import jwt from 'jsonwebtoken';
 
 export const authentication = (req, res, next) => {
-    const secretKey = process.env.JWT_SECRET_KEY
-    const accessTokenExpires = process.env.JWT_ACCESS_TOKEN_EXPIRES;
-    const refreshTokenExpires = process.env.JWT_REFRESH_TOKEN_EXPIRES;
+    const accessTokenSecret = process.env.JWT_ACCESS_SECRET; 
 
-    let accessToken = req.get("Authorization")
+    let accessToken = req.get("Authorization");
 
     if (!accessToken) {
         return res.status(401).json({
             message: "The request was unauthenticated"
-        })
+        });
     }
 
-    accessToken = accessToken.replace('Bearer', '')
+    accessToken = accessToken.replace('Bearer ', ''); // Correctly remove "Bearer " prefix
 
     try {
-        jwt.verify(accessToken, secretKey)
-        const result = jwt.decode(accessToken)
-        req.currentUserId = result.userId
-        next()
+        jwt.verify(accessToken, accessTokenSecret); // Verify with accessTokenSecret
+        const result = jwt.decode(accessToken);
+        req.currentUserId = result.userId;
+        next();
     } catch (exception) {
         return res.status(401).json({
             message: "The request was unauthenticated"
-        })
+        });
     }
-}
-
+};
 
 export const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -41,7 +38,7 @@ export const verifyToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid token' }); // Token is not valid (expired, tampered)
         }
-        req.user = decoded; 
-        next(); 
+        req.user = decoded;
+        next();
     });
 };

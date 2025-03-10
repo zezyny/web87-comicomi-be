@@ -23,17 +23,26 @@ export const getStories = async (req, res) => {
 }
 
 export const getStory = async (req, res) => {
-    const { id } = req.params
+    try {
+        const { id } = req.params;
 
-    const story = await storyRepository.getStoryById(id)
-        (await story.populate(['user']))
+        // Fetch the story by its ID and populate the user field
+        const story = await Story.findById(id).populate('creatorId');
 
-    if (!story) {
-        return res.notFound('', 'Story was not found')
+        if (!story) {
+            return res.status(404).json({
+                message: 'Story not found'
+            });
+        }
+
+        return res.status(200).json(story);
+    } catch (err) {
+        console.error("Error: Can't search for story", err);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
     }
-
-    return res.ok(StoryView(story))
-}
+};
 
 // --- Create Story ---
 export const createStory = async (req, res, next) => {
