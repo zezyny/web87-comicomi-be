@@ -15,6 +15,9 @@ import securityHeaders from './middlewares/securityHeaders.js';
 
 import storyRoutes from './routes/storyRoutes.js'
 
+import chapterRoutes from './routes/chapterRoutes.js';
+
+
 dotenv.config()
 
 const app = express()
@@ -27,6 +30,7 @@ app.use(simpleResponse)
 
 // Middlewares
 app.use(helmet());
+
 app.use(securityHeaders); 
 
 //auth routes
@@ -36,6 +40,10 @@ app.use('/auth', authRoutes);
 //Story APIs
 app.use('/api/v2/stories', storyRoutes);
 
+//Chapter APIs
+
+app.use('/api', chapterRoutes);
+
 //user
 app.get('/api/v1/user', getUsers)
 app.get('/api/v1/user/:id/detail', getUser)
@@ -43,6 +51,8 @@ app.get('/api/v1/user/:id/detail', getUser)
 //story
 app.get('/api/v1/story', getStories)
 app.get('/api/v1/story/:id/detail', getStory)
+
+
 
 app.use(errorHandler);
 
