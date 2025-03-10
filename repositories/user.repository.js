@@ -1,12 +1,14 @@
 import User from "../models/user.model.js"
 
 const userRepository = {
-    getAndPaginateUser: async ({ keyword, page, pageSize, orderBy, orderDirection }) => {
-        const query = {}
+    getAndPaginateUser: async ({ keyword, page, pageSize, orderBy, orderDirection, role }) => {
+        const query = { isDeleted: false }
         if (keyword) {
             query.userName = { $regex: new RegExp('.*' + keyword + '.*', 'i') }
         }
-
+        if (role) {
+            query.role = role
+        }
         const totalUsers = await User.countDocuments(query)
 
         const totalPages = Math.ceil(totalUsers / pageSize)
