@@ -5,7 +5,7 @@ import cors from 'cors';
 import db from './database/db.js'
 import { simpleResponse } from './middlewares/simpleResponse.middleware.js';
 import { authentication } from './middlewares/auth.middleware.js';
-import { getUser, getUsers } from './controllers/user.controller.js';
+import { deleteUser, getAllUsers, getUser, getUsers } from './controllers/user.controller.js';
 import { getStories, getStory } from './controllers/story.controller.js';
 
 import helmet from 'helmet';
@@ -14,6 +14,7 @@ import errorHandler from './middlewares/errorHandler.js';
 import securityHeaders from './middlewares/securityHeaders.js';
 
 import storyRoutes from './routes/storyRoutes.js'
+import { getListByUserId } from './controllers/favorite.controller.js';
 
 import chapterRoutes from './routes/chapterRoutes.js';
 
@@ -30,9 +31,7 @@ app.use(simpleResponse)
 
 // Middlewares
 app.use(helmet());
-
-app.use(securityHeaders); 
-
+app.use(securityHeaders);
 //auth routes
 
 app.use('/auth', authRoutes);
@@ -47,12 +46,14 @@ app.use('/api', chapterRoutes);
 //user
 app.get('/api/v1/user', getUsers)
 app.get('/api/v1/user/:id/detail', getUser)
+app.put('/api/v1/user/:id/delete', deleteUser)
 
 //story
 app.get('/api/v1/story', getStories)
 app.get('/api/v1/story/:id/detail', getStory)
 
-
+//favorite
+app.get('/api/v1/favorite/:userId', getListByUserId)
 
 app.use(errorHandler);
 
