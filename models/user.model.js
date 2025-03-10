@@ -9,8 +9,9 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, enum: ['member', 'creator', 'admin'], default: 'member' },
     token: String,
     refreshToken: String,
-    wallet: { type: Number, default: 0 }
-}, { timestamps: true }); 
+    wallet: { type: Number, default: 0 },
+    isDeleted: Boolean
+}, { timestamps: true });
 
 const User = mongoose.model('users', UserSchema)
 export default User
