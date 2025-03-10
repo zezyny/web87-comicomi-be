@@ -1,8 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const ChapterSchema = new mongoose.Schema({
-    chapterId: mongoose.Types.ObjectId, 
     chapterTitle: String,
+    chargeType: String, // Free / Ads / Paid
+    type: String,           //comic, novel
+    released: Boolean, //Chuong da release hay chua
     storyId: mongoose.Types.ObjectId,
     content: [Schema.Types.Mixed],
     chapterNumber: Number,
