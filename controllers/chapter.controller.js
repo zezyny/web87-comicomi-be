@@ -3,20 +3,18 @@ import { validateChapterData } from '../utils/validation.utils.js';
 
 export const createChapter = async (req, res) => {
     try {
-        const { chapterTitle, chargeType, type, storyId, price } = req.body; // content removed from required fields for create
+        const { chapterTitle, chargeType, type, storyId, price } = req.body; 
 
-        const chapterData = { chapterTitle, chargeType, type, storyId, price }; // content removed from validation for create
+        const chapterData = { chapterTitle, chargeType, type, storyId, price };
 
-        const errors = validateChapterData(chapterData); // validation will now exclude content check in create
+        const errors = validateChapterData(chapterData); 
         if (errors) {
             return res.status(400).json({ message: 'Validation errors', errors });
         }
 
-        // Auto-generate uploadAt, released, chapterNumber
         const uploadAt = new Date();
         const released = false;
 
-        // Find the latest chapter number for the story and increment by 1
         const lastChapter = await Chapter.findOne({ storyId }).sort({ chapterNumber: -1 }).limit(1);
         const chapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
 
@@ -29,7 +27,7 @@ export const createChapter = async (req, res) => {
             uploadAt,
             released,
             price,
-            content: [] // Initialize content as empty array upon chapter creation
+            content: []
         });
 
         const savedChapter = await newChapter.save();
@@ -85,7 +83,6 @@ export const updateChapter = async (req, res) => {
 export const getChapterDetail = async (req, res) => {
     try {
         const chapterId = req.params.id;
-        // Exclude content field using .select('-content')
         const chapter = await Chapter.findById(chapterId).select('-content');
 
         if (!chapter) {
@@ -98,16 +95,15 @@ export const getChapterDetail = async (req, res) => {
     }
 };
 
-// New controller function to get chapter content
 export const getChapterContent = async (req, res) => {
     try {
         const chapterId = req.params.id;
-        const chapter = await Chapter.findById(chapterId).select('content'); // Select only content field
+        const chapter = await Chapter.findById(chapterId).select('content'); 
 
         if (!chapter) {
             return res.status(404).json({ message: 'Chapter not found' });
         }
-        res.status(200).json(chapter.content); // Send only the content in response
+        res.status(200).json(chapter.content); 
     } catch (error) {
         console.error("Error getting chapter content:", error);
         res.status(500).json({ message: 'Failed to get chapter content', error: error.message });
@@ -123,7 +119,7 @@ export const getAllChaptersOfStory = async (req, res) => {
         let options = {};
 
         if (search) {
-            query.chapterTitle = { $regex: search, $options: 'i' }; // 'i' for case-insensitive search
+            query.chapterTitle = { $regex: search, $options: 'i' }; 
         }
 
         if (start && stop) {
