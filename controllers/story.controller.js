@@ -27,15 +27,27 @@ export const getStory = async (req, res) => {
         const { id } = req.params;
 
         // Fetch the story by its ID and populate the user field
-        const story = await Story.findById(id).populate('creatorId');
+        const story = await Story.findOne({_id: id, isDeleted: false}).populate('creatorId');
 
         if (!story) {
             return res.status(404).json({
-                message: 'Story not found'
+                message: 'Story not found or deleted.'
             });
         }
 
-        return res.status(200).json(story);
+        return res.status(200).json({
+            creator:{
+                creatorId: story.creatorId._id,
+                creatorName: story.creatorId.userName
+            },
+            description: story.description,
+            genre: story.genre,
+            img: story.img,
+            release: story.release,
+            status: story.status,
+            title: story.title,
+            type: story.type
+        });
     } catch (err) {
         console.error("Error: Can't search for story", err);
         return res.status(500).json({
@@ -64,7 +76,8 @@ export const createStory = async (req, res, next) => {
             status,
             description,
             release: new Date(), 
-            lastUpdate: new Date()
+            lastUpdate: new Date(),
+            isDeleted: false
         });
 
         const savedStory = await newStory.save();
@@ -177,6 +190,7 @@ export const getStoriesByCreator = async (req, res, next) => {
 // --- Get All Stories with Pagination and Sorting ---
 export const getAllStories = async (req, res, next) => {
     try {
+        console.log("Getting stories.")
         const fromIndex = parseInt(req.query.from) || 0;
         const limit = 50;
         const sortBy = req.query.sortBy || 'release';

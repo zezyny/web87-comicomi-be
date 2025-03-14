@@ -10,7 +10,8 @@ const StorySchema = new mongoose.Schema({
     status: String,         //ongoing, completed
     description: String,
     release: Date,
-    lastUpdate: Date
+    lastUpdate: Date,
+    isDeleted: Boolean
 })
 
 const Story = mongoose.model('stories', StorySchema)
