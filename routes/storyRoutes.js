@@ -6,12 +6,12 @@ import {
     getStoriesByCreator, 
     getAllStories       
 } from '../controllers/story.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js'; 
+import { verifyToken, permissionAuth } from '../middlewares/auth.middleware.js'; 
 
 const router = express.Router();
 
 // --- Create Story ---
-router.post('/', verifyToken, createStory); // POST /api/v2/stories
+router.post('/', permissionAuth, createStory); // POST /api/v2/stories
 
 // --- Get All Stories (limited, Sorted) ---
 router.get('/', getAllStories); // GET /api/v2/stories
@@ -23,6 +23,6 @@ router.get('/:id', getStory); // GET /api/v2/stories/:id
 router.get('/creator/:creatorId', getStoriesByCreator); // GET /api/v2/stories/creator/:creatorId
 
 // --- Delete Story ---
-router.delete('/:id', verifyToken, deleteStory); // DELETE /api/v2/stories/:id
+router.delete('/:id', permissionAuth, deleteStory); // DELETE /api/v2/stories/:id
 
 export default router;

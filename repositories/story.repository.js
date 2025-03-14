@@ -14,7 +14,7 @@ const storyRepository = {
         const sort = {};
         sort[orderBy] = orderDirection == 'asc' ? 1 : -1;
 
-        const stories = await Story.find(query, {}, {
+        const stories = await Story.find(query, {isDeleted: false}, {
             limit: pageSize,
             skip: (page - 1) * pageSize,
             sort: sort,

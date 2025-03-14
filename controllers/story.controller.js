@@ -101,7 +101,7 @@ export const getStory_v2 = async (req, res, next) => {
             return res.status(400).json({ message: 'Invalid Story ID format' });
         }
 
-        const story = await Story.findById(storyId);
+        const story = await Story.findOne({_id:storyId, isDeleted:false});
 
         if (!story) {
             return res.status(404).json({ message: 'Story not found' });
@@ -125,7 +125,7 @@ export const deleteStory = async (req, res, next) => {
             return res.status(400).json({ message: 'Invalid Story ID format' });
         }
 
-        const story = await Story.findById(storyId);
+        const story = await Story.findOne({_id: storyId, isDeleted: false});
 
         if (!story) {
             return res.status(404).json({ message: 'Story not found' });
@@ -136,7 +136,7 @@ export const deleteStory = async (req, res, next) => {
             return res.status(403).json({ message: 'Unauthorized to delete this story' });
         }
 
-        await Story.findByIdAndDelete(storyId);
+        await Story.findById(storyId).updateOne({isDeleted: true});
 
         res.status(200).json({ message: 'Story deleted successfully' });
 
@@ -200,15 +200,11 @@ export const getAllStories = async (req, res, next) => {
         const sortOptions = {};
         sortOptions[sortBy] = sortOrder;
 
-        let query = {}; 
+        let query = {isDeleted: false}; 
 
         if (search) { 
-            query = {
-                $or: [ 
-                    { title: { $regex: search, $options: 'i' } }, 
-                    { description: { $regex: search, $options: 'i' } }
-                ]
-            };
+            query[$or] = [{ title: { $regex: search, $options: 'i' } }, 
+                { description: { $regex: search, $options: 'i' } }]
         }
 
         const stories = await Story.find(query) 
