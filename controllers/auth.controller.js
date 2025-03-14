@@ -121,32 +121,21 @@ export const validateUser = async (req, res, next) => {
         const { email } = req.body; // Get email from request body
         const decodedUserFromToken = req.user; // User info from token is attached by verifyToken middleware
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required in the request body' });
-        }
+        // if (!email) {
+        //     return res.status(400).json({ message: 'Email is required in the request body' });
+        // }
 
-        if (!decodedUserFromToken || !decodedUserFromToken.userId) {
+        if (!decodedUserFromToken || !decodedUserFromToken._id) {
             return res.status(401).json({ message: 'Invalid or missing user information in token' }); // Should not happen if middleware works correctly, but good to check
-        }
-
-        const userIdFromToken = decodedUserFromToken.userId;
-
-        const user = await User.findById(userIdFromToken);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' }); // User from token not found in DB (unlikely, but possible data inconsistency)
-        }
-
-        if (user.email !== email) {
-            return res.status(400).json({ message: 'Email does not match user associated with token' });
         }
 
         res.status(200).json({
             message: 'User is valid',
             user: {
-                _id: user._id,
-                userName: user.userName,
-                email: user.email,
-                role: user.role
+                _id: decodedUserFromToken._id,
+                userName: decodedUserFromToken.userName,
+                email: decodedUserFromToken.email,
+                role: decodedUserFromToken.role
             }
         });
 
@@ -154,3 +143,8 @@ export const validateUser = async (req, res, next) => {
         next(error);
     }
 };
+
+export const PermissionOk = async(req, res) => {
+    //cause middleware handled the checking process, here just return status 200.
+    return res.status(200).json({message:"Access granted."})
+}

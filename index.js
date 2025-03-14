@@ -28,6 +28,7 @@ db.connect()
 app.use(express.json())
 app.use(cors())
 app.use(simpleResponse)
+// app.use(express.urlencoded({ extended: true }));
 
 // Middlewares
 app.use(helmet());

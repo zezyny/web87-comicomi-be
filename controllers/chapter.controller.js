@@ -1,5 +1,8 @@
 import Chapter from '../models/chapter.model.js';
 import { validateChapterData } from '../utils/validation.utils.js';
+import { processXMLData } from '../utils/upload.utils.js';
+import Content from '../models/contents.model.js';
+import { getNovelContent } from '../utils/requestContent.utils.js';
 
 export const createChapter = async (req, res) => {
     try {
@@ -27,7 +30,8 @@ export const createChapter = async (req, res) => {
             uploadAt,
             released,
             price,
-            content: []
+            content: [],
+            isDeleted: false
         });
 
         const savedChapter = await newChapter.save();
@@ -47,7 +51,8 @@ export const deleteChapter = async (req, res) => {
             return res.status(404).json({ message: 'Chapter not found' });
         }
 
-        await Chapter.findByIdAndDelete(chapterId);
+        // await Chapter.findByIdAndDelete(chapterId);
+        await Chapter.findByIdAndUpdate(chapterId, {isDeleted: true})
         res.status(200).json({ message: 'Chapter deleted successfully' });
     } catch (error) {
         console.error("Error deleting chapter:", error);
@@ -141,3 +146,115 @@ export const getAllChaptersOfStory = async (req, res) => {
         res.status(500).json({ message: 'Failed to get chapters for story', error: error.message });
     }
 };
+
+export const saveNovelChapterContent = async (req, res) => {
+    const { chapterId } = req.params;
+    const chapterData = req.chapterData;
+    const storyData = req.storyData;
+
+    if (!chapterData || chapterData.type !== "novel") {
+        return res.status(400).json({ error: "Invalid chapter data or unsupported chapter type." });
+    }
+
+    console.log("Handling novel upload.");
+    // console.log("Received body:", req.body);
+
+    const chapterContentXML = `<content>${req.body.contents}</content>`
+
+    try {
+        const saveResult = await processXMLData(chapterContentXML, chapterId);
+        console.log("Saved content at:", saveResult.fileAt);
+        let newContentRecord = await Content.create({
+            fileName: saveResult.fileAt,
+            type: 'novel',
+            chapterId: chapterId,
+            isDeleted: false
+        });
+        await Chapter.findOneAndUpdate(
+            { _id: chapterId },
+            { $set: { content: [newContentRecord._id] } } // Use $set to replace the array
+        );
+        return res.status(200).json({ message: "Chapter content saved successfully.", savedAt: saveResult.fileAt });
+
+    } catch (error) {
+        console.error("Error saving chapter content:", error);
+        return res.status(403).json({ error: error.message });
+    }
+};
+
+export const publishChapter = async (req, res) => {
+    const { chapterId } = req.params;
+    const chapterData = req.chapterData;
+    if (!chapterData) {
+        return res.status(400).json({ error: "Invalid chapter data or unsupported chapter type." });
+    }
+    try{
+        await Chapter.findOneAndUpdate({_id: chapterId}, {released: true})
+        return res.status(200).json({ message: "Chapter successfully published." });
+    }catch(error){
+        console.error("Error publishing chapter content:", error);
+        return res.status(403).json({ error: error.message });
+    }
+}
+
+export const requestChapterContentForUser = async (req, res) => {
+    const {chapterId} = req.params;
+    if(!chapterId){
+        return res.status(403);
+    }
+    try{
+        const chapterData = await Chapter.findOne({_id: chapterId, released: true})
+        if(chapterData.type == 'novel'){
+            const content = chapterData.content[0]
+            if(!content){
+                return res.status(403).json({ error: "Chapter don't have any content." });
+            }
+            let actualContent = await Content.findById(content)
+            let contentData = await getNovelContent(actualContent.fileName)
+            // console.log(contentData)
+            if(contentData != -1){
+                contentData = contentData.replace("<content>", "")
+                contentData = contentData.replace("</content>", "")
+                return res.status(200).json({content: contentData})
+            }
+        }
+        return res.status(404).json({error: "Not found."})
+    }catch(error){
+        console.error("Error getting chapter content:", error);
+        return res.status(403).json({ error: "Chapter does not exists / don't have any content." });
+    }
+    
+    
+}
+
+export const requestChapterContentForAdminAndCreator = async (req, res) => {
+    const {chapterId} = req.params;
+    if(!chapterId){
+        return res.status(403);
+    }
+    try{
+        const chapterData = req.chapterData
+        if(chapterData.type == 'novel'){
+            const content = chapterData.content[0]
+            if(!content){
+                return res.status(403).json({ error: "Chapter don't have any content." });
+            }
+            let actualContent = await Content.findById(content)
+            let contentData = await getNovelContent(actualContent.fileName)
+            // console.log(contentData)
+            if(contentData != -1){
+                contentData = contentData.replace("<content>", "")
+                contentData = contentData.replace("</content>", "")
+                return res.status(200).json({content: contentData})
+            }else{
+                return res.status(404).json({error: 'Content not available.'})
+            }
+        }
+        return res.status(404).json({error: "Not found."})
+    }catch(error){
+        console.error("Error getting chapter content:", error);
+        return res.status(403).json({ error: "Chapter does not exists / don't have any content." });
+    }
+    
+    
+}
