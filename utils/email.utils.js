@@ -1,7 +1,5 @@
-// email.utils.js (using Mailgun API Key - ESM version)
-
-import nodemailer from 'nodemailer'; // Import nodemailer using ESM syntax
-import mailgunTransport from 'nodemailer-mailgun-transport'; // Import mailgunTransport using ESM syntax
+import nodemailer from 'nodemailer'; 
+import mailgunTransport from 'nodemailer-mailgun-transport'; 
 
 const sendEmail = async ({ toEmail, subject, body }) => {
   try {
@@ -29,4 +27,4 @@ const sendEmail = async ({ toEmail, subject, body }) => {
   }
 };
 
-export { sendEmail }; // Use export for ESM syntax
+export { sendEmail };
