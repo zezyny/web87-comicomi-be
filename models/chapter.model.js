@@ -6,10 +6,11 @@ const ChapterSchema = new mongoose.Schema({
     type: String,           //comic, novel
     released: Boolean, //Chuong da release hay chua
     storyId: mongoose.Types.ObjectId,
-    content: [Schema.Types.Mixed],
+    content: [Schema.Types.ObjectId],
     chapterNumber: Number,
     uploadAt: Date,
-    price: Number
+    price: Number,
+    isDeleted: Boolean
 })
 
 const Chapter = mongoose.model('chapters', ChapterSchema)

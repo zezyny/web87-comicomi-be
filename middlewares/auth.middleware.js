@@ -12,10 +12,10 @@ export const authentication = (req, res, next) => {
         });
     }
 
-    accessToken = accessToken.replace('Bearer ', ''); // Correctly remove "Bearer " prefix
+    accessToken = accessToken.replace('Bearer ', '');   
 
     try {
-        jwt.verify(accessToken, accessTokenSecret); // Verify with accessTokenSecret
+        jwt.verify(accessToken, accessTokenSecret); 
         const result = jwt.decode(accessToken);
         req.currentUserId = result.userId;
         next();
@@ -36,10 +36,10 @@ export const permissionAuth = async (req, res, next) => {
         });
     }
 
-    accessToken = accessToken.replace('Bearer ', ''); // Correctly remove "Bearer " prefix
+    accessToken = accessToken.replace('Bearer ', '');   
 
     try {
-        jwt.verify(accessToken, accessTokenSecret); // Verify with accessTokenSecret
+        jwt.verify(accessToken, accessTokenSecret); 
         const result = jwt.decode(accessToken);
         req.currentUserId = result.userId;
         const user = await userRepository.getUserById(result.userId)
@@ -73,10 +73,10 @@ export const allowAdmin = async (req, res, next) => {
         });
     }
 
-    accessToken = accessToken.replace('Bearer ', ''); // Correctly remove "Bearer " prefix
+    accessToken = accessToken.replace('Bearer ', '');   
 
     try {
-        jwt.verify(accessToken, accessTokenSecret); // Verify with accessTokenSecret
+        jwt.verify(accessToken, accessTokenSecret); 
         const result = jwt.decode(accessToken);
         req.currentUserId = result.userId;
         const user = await userRepository.getUserById(result.userId)
@@ -109,10 +109,10 @@ export const allowCreator = async (req, res, next) => {
         });
     }
 
-    accessToken = accessToken.replace('Bearer ', ''); // Correctly remove "Bearer " prefix
+    accessToken = accessToken.replace('Bearer ', '');   
 
     try {
-        jwt.verify(accessToken, accessTokenSecret); // Verify with accessTokenSecret
+        jwt.verify(accessToken, accessTokenSecret); 
         const result = jwt.decode(accessToken);
         req.currentUserId = result.userId;
         const user = await userRepository.getUserById(result.userId)

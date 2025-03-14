@@ -143,3 +143,8 @@ export const validateUser = async (req, res, next) => {
         next(error);
     }
 };
+
+export const PermissionOk = async(req, res) => {
+    //cause middleware handled the checking process, here just return status 200.
+    return res.status(200).json({message:"Access granted."})
+}
