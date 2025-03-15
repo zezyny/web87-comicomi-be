@@ -1,6 +1,6 @@
 import Chapter from '../models/chapter.model.js';
 import { validateChapterData } from '../utils/validation.utils.js';
-import { processXMLData } from '../utils/upload.utils.js';
+import { processImage, processXMLData } from '../utils/upload.utils.js';
 import Content from '../models/contents.model.js';
 import { getNovelContent } from '../utils/requestContent.utils.js';
 
@@ -164,16 +164,23 @@ export const saveNovelChapterContent = async (req, res) => {
     try {
         const saveResult = await processXMLData(chapterContentXML, chapterId);
         console.log("Saved content at:", saveResult.fileAt);
-        let newContentRecord = await Content.create({
-            fileName: saveResult.fileAt,
-            type: 'novel',
-            chapterId: chapterId,
-            isDeleted: false
-        });
-        await Chapter.findOneAndUpdate(
-            { _id: chapterId },
-            { $set: { content: [newContentRecord._id] } } // Use $set to replace the array
-        );
+        const OldRecordAvailable = (await Content.find({fileName: saveResult.fileAt}).countDocuments() > 0)
+        if(!OldRecordAvailable){
+            let newContentRecord = await Content.create({
+                fileName: saveResult.fileAt,
+                type: 'novel',
+                chapterId: chapterId,
+                isDeleted: false
+            });
+            await Chapter.findOneAndUpdate(
+                { _id: chapterId },
+                { $set: { content: [newContentRecord._id] } } // Use $set to replace the array
+            );
+        }else{
+            console.log("Old footprint usable, no update.")
+        }
+        
+        
         return res.status(200).json({ message: "Chapter content saved successfully.", savedAt: saveResult.fileAt });
 
     } catch (error) {
@@ -256,5 +263,35 @@ export const requestChapterContentForAdminAndCreator = async (req, res) => {
         return res.status(403).json({ error: "Chapter does not exists / don't have any content." });
     }
     
+    
+}
+
+export const saveComicChapterContent = async (req, res) => {
+    const chapterData = req.chapterData
+    if(!chapterData){
+        return res.status(403).json({error: "chapterId is not specified."}) //checkAccess already handled but we need this for further check.
+    }
+    console.log("Proceed file upload.")
+    let footprintArr = []
+    try{
+        req.files.forEach( async (e) => {
+            const fname = await processImage(e, chapterData._id)
+            const newContentFootprint = await Content.create({
+                fileName: fname,
+                type: 'comic',
+                chapterId: chapterData._id,
+                isDeleted: false
+            })
+            footprintArr.push(newContentFootprint._id)
+        })
+        await Chapter.findOneAndUpdate(
+            { _id: chapterData._id },
+            { $set: { content: footprintArr } } // Use $set to replace the array
+        );
+        return res.status(200).json({status: "success."})
+    }catch(err){
+        console.log("Error: ", err, " on upload image.");
+        return res.status(403).json({error: err})
+    }
     
 }
