@@ -11,8 +11,10 @@ import {
     saveNovelChapterContent,
     publishChapter,
     requestChapterContentForUser,
-    requestChapterContentForAdminAndCreator
+    requestChapterContentForAdminAndCreator,
+    saveComicChapterContent
 } from '../controllers/chapter.controller.js';
+import multer from 'multer';
 
 const router = express.Router();
 
@@ -36,5 +38,7 @@ router.get('/chapter/publish/:chapterId', checkAccessToEditChapter, publishChapt
 router.get('/chapter/contents/:chapterId', requestChapterContentForUser) // no auth needed, for released chapter.
 
 router.get('/chapter/contents/:chapterId/private', checkAccessToEditChapter, requestChapterContentForAdminAndCreator) // no auth needed, for released chapter.
+
+router.post('/chapter/save-content/comic/:chapterId', multer().any(), checkAccessToEditChapter, saveComicChapterContent)
 
 export default router;
