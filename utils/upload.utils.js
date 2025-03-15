@@ -60,14 +60,18 @@ export async function processImage(imageFile, chapterId) {
         imageFile.originalname.toLowerCase().endsWith('.jpeg')
     ){
         // console.log(imageFile)
-        const dirPath = path.join(process.cwd(), "temporaryStorage", "chapterComic");
+        
+        const dirPath = path.join(process.cwd(), "temporaryStorage", "chapterComic", String(chapterId));
         const fname = `${chapterId}${Date.now()}${imageFile.originalname}`.trim().toLocaleLowerCase()
         const filePath = path.join(dirPath, fname);
         console.log("Will save to:", filePath)
         try{
+            if(!fs.existsSync(dirPath)){
+                fs.mkdirSync(dirPath)
+            }
             await fs.promises.writeFile(filePath, imageFile.buffer)
             console.log("Saved image to server.")
-            return fname;
+            return path.join(String(chapterId), fname);
         }catch(err){
             throw err
         }

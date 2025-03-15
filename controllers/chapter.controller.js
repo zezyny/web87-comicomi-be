@@ -274,6 +274,10 @@ export const saveComicChapterContent = async (req, res) => {
     console.log("Proceed file upload.")
     let footprintArr = []
     try{
+        await Chapter.findOneAndUpdate(
+            { _id: chapterData._id },
+            { $set: { content: [] } } // Use $set to replace the array
+        );
         req.files.forEach( async (e) => {
             const fname = await processImage(e, chapterData._id)
             const newContentFootprint = await Content.create({
@@ -282,12 +286,14 @@ export const saveComicChapterContent = async (req, res) => {
                 chapterId: chapterData._id,
                 isDeleted: false
             })
-            footprintArr.push(newContentFootprint._id)
+            console.log("Adding:", newContentFootprint._id)
+            await Chapter.findOneAndUpdate(
+                { _id: chapterData._id },
+                { $push: { content: newContentFootprint._id } } // Use $set to replace the array
+            );
         })
-        await Chapter.findOneAndUpdate(
-            { _id: chapterData._id },
-            { $set: { content: footprintArr } } // Use $set to replace the array
-        );
+        
+        console.log("New content updated:", footprintArr)
         return res.status(200).json({status: "success."})
     }catch(err){
         console.log("Error: ", err, " on upload image.");
