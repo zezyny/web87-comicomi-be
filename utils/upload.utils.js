@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { parse } from 'node-html-parser';
+import Chapter from "../models/chapter.model.js";
+import Content from "../models/contents.model.js";
 // import { error, timeStamp } from "console";
 // import { randomUUID } from "crypto";
 
@@ -50,35 +52,58 @@ export async function processXMLData(xmlData, chapterId) {
     return { fileAt: savedAt };
 }
 
+export const ClearOldContent = async (chapterId) => {
+    //flow: clear all content file, then drop content in server by isDeleted = true.
+    try{
+        const chapterData = await Chapter.findById(chapterId);
+        chapterData.content.forEach(async (e, ind) => {
+            const contentRecord = await Content.findById(e)
+            const toDelete = contentRecord.fileName
+            if(chapterData.type == "comic"){
+                const dirPath = path.join(process.cwd(), "temporaryStorage", "chapterComic");
+                const filePath = path.join(dirPath, toDelete);
+                console.log("Deleting:", filePath)
+                await fs.promises.rm(filePath)
+            }
+        })
+        await Chapter.findByIdAndUpdate(chapterData, {$set:{content: []}}) // clear content
+        console.log("Updated chapter:", await Chapter.findById(chapterId))
+        await Content.updateMany({chapterId: chapterId, isDeleted: false}, {isDeleted:true});
+        console.log("Soft deleted content:", await Content.find({chapterId: chapterId, isDeleted:true}))
+        console.log("Successful.")
+    }catch (err){
+        console.log("Error occur when trying to remove content:", err);
+        return err;
+    }
+}
+
 export async function processImage(imageFile, chapterId) {
     //Security is very very low in this ver.
     // if()
-    if(
+    if (
         imageFile.originalname.toLowerCase().endsWith('.heic') ||
         imageFile.originalname.toLowerCase().endsWith('.png') ||
         imageFile.originalname.toLowerCase().endsWith('.jpg') ||
         imageFile.originalname.toLowerCase().endsWith('.jpeg')
-    ){
+    ) {
         // console.log(imageFile)
-        
+
         const dirPath = path.join(process.cwd(), "temporaryStorage", "chapterComic", String(chapterId));
         const fname = `${chapterId}${Date.now()}${imageFile.originalname}`.trim().toLocaleLowerCase()
         const filePath = path.join(dirPath, fname);
         console.log("Will save to:", filePath)
-        try{
-            if(!fs.existsSync(dirPath)){
+        try {
+            if (!fs.existsSync(dirPath)) {
                 fs.mkdirSync(dirPath)
             }
             await fs.promises.writeFile(filePath, imageFile.buffer)
             console.log("Saved image to server.")
             return path.join(String(chapterId), fname);
-        }catch(err){
+        } catch (err) {
             throw err
         }
-    }else{
+    } else {
         throw error("Error: Security risks - unknown file type uploaded - halted.")
     }
-
-        
-
 }
+

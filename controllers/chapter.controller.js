@@ -1,6 +1,6 @@
 import Chapter from '../models/chapter.model.js';
 import { validateChapterData } from '../utils/validation.utils.js';
-import { processImage, processXMLData } from '../utils/upload.utils.js';
+import { ClearOldContent, processImage, processXMLData } from '../utils/upload.utils.js';
 import Content from '../models/contents.model.js';
 import { getNovelContent } from '../utils/requestContent.utils.js';
 
@@ -274,10 +274,7 @@ export const saveComicChapterContent = async (req, res) => {
     console.log("Proceed file upload.")
     let footprintArr = []
     try{
-        await Chapter.findOneAndUpdate(
-            { _id: chapterData._id },
-            { $set: { content: [] } } // Use $set to replace the array
-        );
+        await ClearOldContent(chapterData._id)
         req.files.forEach( async (e) => {
             const fname = await processImage(e, chapterData._id)
             const newContentFootprint = await Content.create({
