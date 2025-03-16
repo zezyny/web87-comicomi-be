@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const UnlockSchema = new mongoose.Schema({
     userId: { type: mongoose.Types.ObjectId, ref: 'users' },
-    chapterId: { type: mongoose.Types.ObjectId, ref: 'chapters' },
+    storyId: { type: mongoose.Types.ObjectId, ref: 'stories' },
     transactionId: { type: mongoose.Types.ObjectId, ref: 'transactions' }
 })
 
