@@ -18,6 +18,7 @@ import { getListByUserId } from './controllers/favorite.controller.js';
 
 import chapterRoutes from './routes/chapterRoutes.js';
 
+import cdnRoutes from './routes/tempCDN.route.js'
 
 dotenv.config()
 
@@ -43,6 +44,10 @@ app.use('/api/v2/stories', storyRoutes);
 //Chapter APIs
 
 app.use('/api', chapterRoutes);
+
+//cdn APIs
+
+app.use('/cdn', cdnRoutes);
 
 //user
 app.get('/api/v1/user', getUsers)

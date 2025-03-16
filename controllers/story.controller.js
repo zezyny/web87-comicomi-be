@@ -2,6 +2,8 @@ import storyRepository from "../repositories/story.repository.js";
 import { StoryListView, StoryView } from "../views/story.view.js";
 import Story from '../models/story.model.js';
 import mongoose from "mongoose";
+import { uploadBannerImage } from "../utils/upload.utils.js";
+import Content from "../models/contents.model.js";
 
 export const getStories = async (req, res) => {
     let { keyword, page, pageSize, orderBy, orderDirection } = req.query;
@@ -91,6 +93,29 @@ export const createStory = async (req, res, next) => {
         next(error);
     }
 };
+
+export const uploadStoryBanner = async (req, res) => {
+    // const storyData = req.body.storyId
+    const imageCDN_BaseURL = "http://localhost:8080/cdn/banner/:bannerTraceId"
+    try {
+        console.log("Handling image upload for:",req.body.storyId)
+        console.log("File:",req.file)
+        let imgFileDir = await uploadBannerImage(req.file, req.body.storyId)
+        let contentRecord = await Content.create({
+            fileName: imgFileDir,
+            type: 'banner',
+            chapterId: req.body.storyId
+        })
+        const imageUrl = imageCDN_BaseURL.replace(":bannerTraceId", contentRecord.id)
+        await Story.updateOne({_id: req.body.storyId}, {img:imageUrl})
+        console.log("Resolved.")
+        return res.status(200).json({message: "Banner updated successfully."})
+    } catch (error) {
+        console.log("An error occur when trying to resolve banner upload:",error)
+        return res.status(403).json({message:error})
+    }
+    
+}
 
 // --- Get Story by ID ---
 export const getStory_v2 = async (req, res, next) => {

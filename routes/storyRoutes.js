@@ -4,9 +4,11 @@ import {
     getStory,
     deleteStory,
     getStoriesByCreator, 
-    getAllStories       
+    getAllStories,       
+    uploadStoryBanner
 } from '../controllers/story.controller.js';
 import { verifyToken, permissionAuth } from '../middlewares/auth.middleware.js'; 
+import multer from 'multer';
 
 const router = express.Router();
 
@@ -24,5 +26,7 @@ router.get('/creator/:creatorId', getStoriesByCreator); // GET /api/v2/stories/c
 
 // --- Delete Story ---
 router.delete('/:id', permissionAuth, deleteStory); // DELETE /api/v2/stories/:id
+
+router.post('/upload/banner', permissionAuth, multer().single('banner'), uploadStoryBanner)
 
 export default router;

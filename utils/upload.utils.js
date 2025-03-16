@@ -107,3 +107,32 @@ export async function processImage(imageFile, chapterId) {
     }
 }
 
+export async function uploadBannerImage(imageFile, chapterId) {
+    if (
+        imageFile.originalname.toLowerCase().endsWith('.heic') ||
+        imageFile.originalname.toLowerCase().endsWith('.png') ||
+        imageFile.originalname.toLowerCase().endsWith('.jpg') ||
+        imageFile.originalname.toLowerCase().endsWith('.jpeg')
+    ) {
+        const dirPath = path.join(process.cwd(), "temporaryStorage", "stories", String(chapterId), "bannerImage");
+        const fname = `${chapterId}${Date.now()}${imageFile.originalname}`.trim().toLocaleLowerCase()
+        const filePath = path.join(dirPath, fname);
+        console.log("Will save to:", filePath)
+        try {
+            let StoriesStoragePath = path.join(process.cwd(), "temporaryStorage", "stories", String(chapterId))
+            if (!fs.existsSync(StoriesStoragePath)) {
+                fs.mkdirSync(StoriesStoragePath)
+            }
+            if(!fs.existsSync(dirPath)){
+                fs.mkdirSync(dirPath)
+            }
+            await fs.promises.writeFile(filePath, imageFile.buffer)
+            console.log("Saved image to server.")
+            return path.join(String(chapterId), "bannerImage", fname);
+        } catch (err) {
+            throw err
+        }
+    } else {
+        throw error("Error: Security risks - unknown file type uploaded - halted.")
+    }
+}
