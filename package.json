@@ -28,6 +28,7 @@
     "nodemailer": "^6.10.0",
     "nodemailer-mailgun-transport": "^2.1.5",
     "nodemailer-sendgrid-transport": "^0.2.0",
+    "profanity-censor": "^1.0.5",
     "uuid": "^11.0.5"
   },
   "description": ""

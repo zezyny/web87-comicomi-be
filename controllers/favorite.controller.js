@@ -63,3 +63,7 @@ export const getListByUserId = async (req, res) => {
         });
     }
 }
+
+export const addToFavorite = async(req, res) => {
+    //... logic here.
+}

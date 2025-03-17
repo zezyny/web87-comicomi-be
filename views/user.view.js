@@ -5,7 +5,8 @@ export const UserView = function (user) {
         email: user.email,
         avatar: user.avatar,
         role: user.role,
-        wallet: user.wallet
+        wallet: user.wallet,
+        avatar: user.avatar
     };
 }
 

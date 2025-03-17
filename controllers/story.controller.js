@@ -2,6 +2,8 @@ import storyRepository from "../repositories/story.repository.js";
 import { StoryListView, StoryView } from "../views/story.view.js";
 import Story from '../models/story.model.js';
 import mongoose from "mongoose";
+import { uploadBannerImage } from "../utils/upload.utils.js";
+import Content from "../models/contents.model.js";
 
 export const getStories = async (req, res) => {
     let { keyword, page, pageSize, orderBy, orderDirection } = req.query;
@@ -37,8 +39,8 @@ export const getStory = async (req, res) => {
 
         return res.status(200).json({
             creator:{
-                creatorId: story.creatorId._id,
-                creatorName: story.creatorId.userName
+                creatorId: story.creatorId,
+                creatorName: story.author
             },
             description: story.description,
             genre: story.genre,
@@ -61,7 +63,9 @@ export const createStory = async (req, res, next) => {
     try {
         //Chinh lai validate =)))))
         const { title, type, genre, status, description } = req.body; 
-        const creatorId = req.user.userId; 
+        const creatorId = req.user._id; 
+
+        console.log("User created new story:", req.user)
 
         if (!title || !type || !genre || !status || !description ) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -82,7 +86,7 @@ export const createStory = async (req, res, next) => {
 
         const savedStory = await newStory.save();
 
-        res.status(201).json({ message: 'Story created successfully', story: savedStory });
+        res.status(201).json({ message: 'Story created successfully', story: {} });
 
     } catch (error) {
         if (error.name === 'ValidationError') {
@@ -91,6 +95,29 @@ export const createStory = async (req, res, next) => {
         next(error);
     }
 };
+
+export const uploadStoryBanner = async (req, res) => {
+    // const storyData = req.body.storyId
+    const imageCDN_BaseURL = "http://localhost:8080/cdn/banner/:bannerTraceId"
+    try {
+        console.log("Handling image upload for:",req.body.storyId)
+        console.log("File:",req.file)
+        let imgFileDir = await uploadBannerImage(req.file, req.body.storyId)
+        let contentRecord = await Content.create({
+            fileName: imgFileDir,
+            type: 'banner',
+            chapterId: req.body.storyId
+        })
+        const imageUrl = imageCDN_BaseURL.replace(":bannerTraceId", contentRecord.id)
+        await Story.updateOne({_id: req.body.storyId}, {img:imageUrl})
+        console.log("Resolved.")
+        return res.status(200).json({message: "Banner updated successfully."})
+    } catch (error) {
+        console.log("An error occur when trying to resolve banner upload:",error)
+        return res.status(403).json({message:error})
+    }
+    
+}
 
 // --- Get Story by ID ---
 export const getStory_v2 = async (req, res, next) => {

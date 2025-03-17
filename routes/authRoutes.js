@@ -19,6 +19,8 @@ router.post('/refresh-token', refreshTokenValidationRules(), validate, refreshTo
 
 //FOR TEST AND DEVELOPMENT ONLY.
 router.post('/dev/validate-user', verifyToken, validateUser); 
+//Now it's okay to use on deployment.
+router.get('/validate-user', verifyToken, validateUser); 
 
 router.get('/admin', allowAdmin, validateUser)
 
