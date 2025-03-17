@@ -125,7 +125,7 @@ export const validateUser = async (req, res, next) => {
         //     return res.status(400).json({ message: 'Email is required in the request body' });
         // }
 
-        if (!decodedUserFromToken || !decodedUserFromToken.userId) {
+        if (!decodedUserFromToken || !decodedUserFromToken._id) {
             return res.status(401).json({ message: 'Invalid or missing user information in token' }); // Should not happen if middleware works correctly, but good to check
         }
 
