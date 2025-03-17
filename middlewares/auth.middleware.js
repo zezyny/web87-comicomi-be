@@ -41,6 +41,7 @@ export const permissionAuth = async (req, res, next) => {
     try {
         jwt.verify(accessToken, accessTokenSecret); 
         const result = jwt.decode(accessToken);
+        console.log("JWT DECODE:", result)
         req.currentUserId = result.userId;
         const user = await userRepository.getUserById(result.userId)
         console.log("[Sensitive action] Verifying for:", user.userName, "\nID:", user._id);
