@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const TransactionSchema = new mongoose.Schema({
-    userId: mongoose.Types.ObjectId,
+    userId: { type: mongoose.Types.ObjectId, ref: 'users' },
     amount: Number,
     date: Date,
     transactionType: String,         //deposit, withdraw, unlock

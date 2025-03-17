@@ -17,6 +17,8 @@ import storyRoutes from './routes/storyRoutes.js';
 import { getListByUserId } from './controllers/favorite.controller.js';
 
 import chapterRoutes from './routes/chapterRoutes.js';
+import { getUnlockByCreatorId } from './controllers/unlock.controller.js';
+import { getTransactions } from './controllers/transaction.controller.js';
 
 import cdnRoutes from './routes/tempCDN.route.js';
 
@@ -75,9 +77,12 @@ app.get('/api/v1/story/:id/detail', getStory);
 // Favorite routes
 app.get('/api/v1/favorite/:userId', getListByUserId);
 
+//unlock
+app.get('/api/v1/unlock', getUnlockByCreatorId)
 
+//transaction
+app.get('/api/v1/transaction', getTransactions)
 
-// Error handling middleware
 app.use(errorHandler);
 
 // Start the server
