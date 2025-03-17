@@ -6,6 +6,7 @@ import {
     deleteChapter,
     updateChapter,
     getChapterDetail,
+    getAllChaptersOfStoryForAuth,
     getAllChaptersOfStory,
     getChapterContent,
     saveNovelChapterContent,
@@ -29,7 +30,9 @@ router.get('/chapters/:id', getChapterDetail);
 
 router.get('/chapter/:id/contents', getChapterContent);
 
-router.get('/stories/:storyId/chapters', getAllChaptersOfStory);
+router.get('/stories/:storyId/chapters', authentication, getAllChaptersOfStoryForAuth);
+
+router.get('/stories/:storyId/chapters/common', getAllChaptersOfStory);
 
 router.post('/chapter/save-content/novel/:chapterId', checkAccessToEditChapter, saveNovelChapterContent)
 

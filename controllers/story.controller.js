@@ -39,8 +39,8 @@ export const getStory = async (req, res) => {
 
         return res.status(200).json({
             creator:{
-                creatorId: story.creatorId._id,
-                creatorName: story.creatorId.userName
+                creatorId: story.creatorId,
+                creatorName: story.author
             },
             description: story.description,
             genre: story.genre,
@@ -63,7 +63,9 @@ export const createStory = async (req, res, next) => {
     try {
         //Chinh lai validate =)))))
         const { title, type, genre, status, description } = req.body; 
-        const creatorId = req.user.userId; 
+        const creatorId = req.user._id; 
+
+        console.log("User created new story:", req.user)
 
         if (!title || !type || !genre || !status || !description ) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -84,7 +86,7 @@ export const createStory = async (req, res, next) => {
 
         const savedStory = await newStory.save();
 
-        res.status(201).json({ message: 'Story created successfully', story: savedStory });
+        res.status(201).json({ message: 'Story created successfully', story: {} });
 
     } catch (error) {
         if (error.name === 'ValidationError') {

@@ -116,11 +116,42 @@ export const getChapterContent = async (req, res) => {
 };
 
 
-export const getAllChaptersOfStory = async (req, res) => {
+export const getAllChaptersOfStoryForAuth = async (req, res) => {
     try {
         const storyId = req.params.storyId;
         let { start, stop, search } = req.query;
         let query = { storyId: storyId };
+        let options = {};
+
+        if (search) {
+            query.chapterTitle = { $regex: search, $options: 'i' }; 
+        }
+
+        if (start && stop) {
+            const startIndex = parseInt(start);
+            const stopIndex = parseInt(stop);
+            const limit = stopIndex - startIndex;
+            const skip = startIndex;
+
+            options = {
+                skip: Math.max(0, skip),
+                limit: Math.max(0, limit)
+            };
+        }
+
+        const chapters = await Chapter.find(query, null, options).sort({ chapterNumber: 1 });
+        res.status(200).json(chapters);
+    } catch (error) {
+        console.error("Error getting chapters for story:", error);
+        res.status(500).json({ message: 'Failed to get chapters for story', error: error.message });
+    }
+};
+
+export const getAllChaptersOfStory = async (req, res) => {
+    try {
+        const storyId = req.params.storyId;
+        let { start, stop, search } = req.query;
+        let query = { storyId: storyId, released: true };
         let options = {};
 
         if (search) {
